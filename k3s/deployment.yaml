@@ -19,6 +19,11 @@ spec:
       labels:
         component: artifactory-server
     spec:
+      # Volumes used by some or all containers of the Pod:
+      volumes:
+      - name: "artifactory-home"
+        persistentVolumeClaim:
+          claimName: "artifactory-home"
       containers:
       - name: artifactory-server
         # docker run --name artifactory -v
@@ -30,9 +35,25 @@ spec:
         ports:
         - containerPort: 8081
         - containerPort: 8082
+        volumeMounts:
+        - mountPath: "/var/opt/jfrog/artifactory"
+          name: "artifactory-home"
         env:
         - name: "XXX"
           value: "yyy"
+      initContainers:
+      - name: artifactory-init
+        image: busybox:latest
+        # mkdir -p $JFROG_HOME/artifactory/var/etc/
+        # cd $JFROG_HOME/artifactory/var/etc/
+        # touch ./system.yaml
+        # chown -R 1030:1030 $JFROG_HOME/artifactory/var
+        # chmod -R 777 $JFROG_HOME/artifactory/var
+        command: ["sh", "-c", "ls -al /d"]
+        # command: ["tail", "-f", "/dev/null"]
+        volumeMounts:
+          - mountPath: "/d"
+            name: "artifactory-home"
 ---
 apiVersion: v1
 kind: Service
