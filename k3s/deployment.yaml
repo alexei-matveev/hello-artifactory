@@ -49,7 +49,7 @@ spec:
         # touch ./system.yaml
         # chown -R 1030:1030 $JFROG_HOME/artifactory/var
         # chmod -R 777 $JFROG_HOME/artifactory/var
-        command: ["sh", "-c", "ls -al /d"]
+        command: ["sh", "-c", "ls -al /d && touch /d/system.yaml && chown -R 1030:1030 /d && chmod -R 777 /d"]
         # command: ["tail", "-f", "/dev/null"]
         volumeMounts:
           - mountPath: "/d"
@@ -89,7 +89,7 @@ spec:
       paths:
       - backend:
           serviceName: artifactory-server
-          servicePort: 8081
+          servicePort: 8082
 ---
 # https://github.com/rancher/local-path-provisioner
 apiVersion: v1

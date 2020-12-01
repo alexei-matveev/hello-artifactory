@@ -14,4 +14,9 @@ Deploy to Kubernetes
     $ kubectl config set-context --current --namespace=hello-artifactory
     $ kubectl apply -k k3s/
 
-Then visit the [URL](https://artifactory.localhost).
+Then visit the [URL](https://artifactory.localhost).  Access
+Artifactory from your browser at
+[WebUI](http://artifactory.localhost/ui) -- default credential for
+Artifactory: admin/password as user/password.
+
+The RPM Feature is disabled in OSS Version, sigh.
