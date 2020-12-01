@@ -67,7 +67,7 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: artifactory-frontend
+          serviceName: artifactory-server
           servicePort: 8081
 ---
 # https://github.com/rancher/local-path-provisioner
