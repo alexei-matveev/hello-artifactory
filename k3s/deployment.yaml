@@ -1,0 +1,89 @@
+#
+# kubectl apply -k .
+#
+# [1] https://www.jfrog.com/confluence/display/JFROG/Installing+Artifactory#InstallingArtifactory-DockerInstallation
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: artifactory-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: artifactory-server
+  # Dont let two Pods run at the same time. Or should we?
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: artifactory-server
+    spec:
+      containers:
+      - name: artifactory-server
+        # docker run --name artifactory -v
+        # $JFROG_HOME/artifactory/var/:/var/opt/jfrog/artifactory -d
+        # -p 8081:8081 -p 8082:8082
+        # docker.bintray.io/jfrog/artifactory-<pro|oss|cpp-ce>:latest
+        image: docker.bintray.io/jfrog/artifactory-oss:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        - containerPort: 8082
+        env:
+        - name: "XXX"
+          value: "yyy"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory-server
+spec:
+  type: ClusterIP
+  selector:
+    component: artifactory-server
+  ports:
+  - port: 8081
+    name: "port8081"
+    targetPort: 8081
+  - port: 8082
+    name: "port8082"
+    targetPort: 8082
+---
+#
+# We  assume here  that  *.localhost resolves  to  the local  machine.
+# Following URL should be directed to corresponding Service, also with
+# https:// protocoll:
+#
+#     http://artifactory.localhost
+#
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: artifactory
+spec:
+  rules:
+  - host: artifactory.localhost
+    http:
+      paths:
+      - backend:
+          serviceName: artifactory-frontend
+          servicePort: 8081
+---
+# https://github.com/rancher/local-path-provisioner
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: artifactory-home
+spec:
+  accessModes:
+    - ReadWriteOnce
+  # When you  dont specify  storage class at  all the  default storage
+  # class may be chosen. In k3s with local-path provisioner it is also
+  # the  default one.  Omitted  storageClassName is  not  the same  as
+  # storageClassName = "".
+  # storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+...
